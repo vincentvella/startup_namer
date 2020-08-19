@@ -10,28 +10,34 @@ class SavedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<SavedModel>(builder: (_, saved, __) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Saved Suggestions'),
-        ),
-        body: ListView(
-            children: ListTile.divideTiles(
-                context: context,
-                tiles: saved.value.map((WordPair pair) {
-                  return ListTile(
-                    title: Text(
-                      pair.asPascalCase,
-                      style: _biggerFont,
-                    ),
-                    trailing: Icon(
-                      Icons.delete,
-                      color: Colors.grey,
-                    ),
-                    onTap: () {
-                      saved.remove(pair);
-                    },
-                  );
-                })).toList()),
-      );
+          appBar: AppBar(
+            title: Text('Saved Suggestions'),
+          ),
+          body: Center(child: Builder(builder: (context) {
+            if (saved.value.length > 0)
+              return ListView(
+                  children: ListTile.divideTiles(
+                      context: context,
+                      tiles: saved.value.map((WordPair pair) {
+                        return ListTile(
+                          title: Text(
+                            pair.asPascalCase,
+                            style: _biggerFont,
+                          ),
+                          trailing: Icon(
+                            Icons.delete,
+                            color: Colors.grey,
+                          ),
+                          onTap: () {
+                            saved.remove(pair);
+                          },
+                        );
+                      })).toList());
+            else
+              return Center(
+                child: Text("No Saved Startup Names", style: _biggerFont),
+              );
+          })));
     });
   }
 }
