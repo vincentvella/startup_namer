@@ -22,8 +22,4 @@ class SavedModel extends ChangeNotifier {
   bool contains(WordPair pair) {
     return value.contains(pair);
   }
-
-  returnSaved() {
-    return value;
-  }
 }
