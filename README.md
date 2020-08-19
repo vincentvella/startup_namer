@@ -37,3 +37,7 @@ A couple of things I touched on while learning:
 - Widget Composition
 
 Overall surprisingly pleased with the outcome of the app and I'd probably use the language again on a future endeavour. It's odd being out of Javascript land but it's refreshing to get a first class language with types to do mobile with that isn't a nightmare. Check it out if you haven't yet.
+
+Name List | Saved Names
+------------ | -------------
+![ScreenShot](./screenshots/ScreenShot.png) | ![ScreenShot](./screenshots/ScreenShot2.png)
