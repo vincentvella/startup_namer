@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:english_words/english_words.dart';
+import 'package:provider/provider.dart';
+import 'package:startup_namer/saved-model.dart';
+import 'package:startup_namer/saved.dart';
 
-void main() => runApp(MyApp());
+void main() =>
+    runApp(ChangeNotifierProvider(create: (_) => SavedModel(), child: MyApp()));
 
 class MyApp extends StatelessWidget {
   @override
@@ -10,6 +14,9 @@ class MyApp extends StatelessWidget {
       title: 'Welcome to Flutter',
       theme: ThemeData(primaryColor: Colors.teal),
       home: RandomWords(),
+      routes: <String, WidgetBuilder>{
+        '/saved': (BuildContext context) => SavedPage(),
+      },
     );
   }
 }
@@ -21,54 +28,31 @@ class RandomWords extends StatefulWidget {
 
 class _RandomWordsState extends State<RandomWords> {
   final _suggestions = <WordPair>[];
-  final _saved = Set<WordPair>();
   final _biggerFont = TextStyle(fontSize: 18);
 
-  void _pushSaved() {
-    Navigator.of(context)
-        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-      final tiles = _saved.map((WordPair pair) {
-        return ListTile(
-          title: Text(
-            pair.asPascalCase,
-            style: _biggerFont,
-          ),
-        );
-      });
-      final divided = ListTile.divideTiles(
-        context: context,
-        tiles: tiles,
-      ).toList();
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Saved Suggestions'),
-        ),
-        body: ListView(children: divided),
-      );
-    }));
-  }
-
   Widget _buildRow(WordPair pair) {
-    final alreadySaved = _saved.contains(pair);
-    return ListTile(
-      title: Text(
-        pair.asPascalCase,
-        style: _biggerFont,
-      ),
-      trailing: Icon(
-        alreadySaved ? Icons.favorite : Icons.favorite_border,
-        color: alreadySaved ? Colors.red : null,
-      ),
-      onTap: () {
-        setState(() {
-          if (alreadySaved) {
-            _saved.remove(pair);
-          } else {
-            _saved.add(pair);
-          }
-        });
-      },
-    );
+    return Consumer<SavedModel>(builder: (context, saved, child) {
+      final alreadySaved = saved.contains(pair);
+      return ListTile(
+        title: Text(
+          pair.asPascalCase,
+          style: _biggerFont,
+        ),
+        trailing: Icon(
+          alreadySaved ? Icons.favorite : Icons.favorite_border,
+          color: alreadySaved ? Colors.red : null,
+        ),
+        onTap: () {
+          setState(() {
+            if (alreadySaved) {
+              saved.remove(pair);
+            } else {
+              saved.add(pair);
+            }
+          });
+        },
+      );
+    });
   }
 
   Widget _buildSuggestions() {
@@ -86,7 +70,13 @@ class _RandomWordsState extends State<RandomWords> {
             return _buildRow(_suggestions[index]);
           }),
       onRefresh: () async {
-        return await Future.delayed(Duration(seconds: 3));
+        return await Future.delayed(Duration(seconds: 3), () {
+          // Clears the suggestions actually uses the list logic to regenerate
+          // new names.
+          setState(() {
+            _suggestions.clear();
+          });
+        });
       },
     );
   }
@@ -99,7 +89,9 @@ class _RandomWordsState extends State<RandomWords> {
         actions: [
           IconButton(
             icon: Icon(Icons.list),
-            onPressed: _pushSaved,
+            onPressed: () {
+              Navigator.pushNamed(context, '/saved');
+            },
           )
         ],
       ),
